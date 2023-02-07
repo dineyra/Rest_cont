@@ -2,75 +2,52 @@ package ru.itmentor.spring.boot_security.demo.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.itmentor.spring.boot_security.demo.dao.UserDao;
 import ru.itmentor.spring.boot_security.demo.model.User;
+import ru.itmentor.spring.boot_security.demo.repositories.UsersRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService {
+    private final UsersRepository usersRepository;
 
-    private final UserDao userDao;
-
-    @Lazy
-    public UserServiceImpl(UserDao userDao) {
-        this.userDao = userDao;
+    @Autowired
+    public UserServiceImpl(UsersRepository usersRepository) {
+        this.usersRepository = usersRepository;
     }
 
-    @Transactional(readOnly = true)
-    public User getUserByEmail(String email) {
+    @Override
+    public List<User> showAllUsers () {
+        return usersRepository.findAll();
+    }
 
-        return userDao.getUserByEmail(email);
+    @Override
+    public User showUser (int id) {
+        Optional<User> foundUser = usersRepository.findById(id);
+
+        return foundUser.orElse(null);
+    }
+    @Override
+    @Transactional
+    public void saveUser(User user) {
+        usersRepository.save(user);
     }
 
     @Override
     @Transactional
-    public void addUser(User user) {
-        userDao.addUser(user);
-    }
-
-    @Transactional(readOnly = true)
-    public User getUserById(Long id) {
-
-        return userDao.getUserById(id);
+    public void update (int id, User updatedUser) {
+        updatedUser.setId(id);
+        usersRepository.save(updatedUser);
     }
 
     @Override
     @Transactional
-    public void updateUser(User user) {
-        userDao.updateUser(user);
-    }
+    public void delete (int id) {
 
-    @Override
-    @Transactional
-    public void removeUserById(Long id) {
-
-        userDao.removeUserById(id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<User> listUsers() {
-
-        return userDao.listUsers();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-//        return userDao.getUserByEmail(email);
-        User user = userDao.getUserByEmail(email);
-        user.getAuthorities().size();
-        if (user == null) {
-            throw new UsernameNotFoundException(String.format("User '%s' not found", email));
-        }
-        return user.fromUser();
+        usersRepository.deleteById(id);
     }
 }

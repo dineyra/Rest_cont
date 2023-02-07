@@ -2,61 +2,26 @@ package ru.itmentor.spring.boot_security.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.itmentor.spring.boot_security.demo.dao.RoleDao;
 import ru.itmentor.spring.boot_security.demo.model.Role;
+import ru.itmentor.spring.boot_security.demo.repositories.RoleRepository;
 
-import java.util.Set;
+import java.util.List;
+
 
 
 @Service
 public class RoleServiceImpl implements RoleService {
 
-    private final RoleDao roleDao;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public RoleServiceImpl(RoleDao roleDao) {
-
-        this.roleDao = roleDao;
+    public RoleServiceImpl(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Set<Role> getAllRoles() {
-
-        return roleDao.getAllRoles();
+    public List<Role> getRoleList()  {
+        return roleRepository.findAll();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Role getRoleByName(String name) {
-
-        return roleDao.getRoleByName(name);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Set<Role> getSetOfRoles(String[] roleNames) {
-        return roleDao.getSetOfRoles(roleNames);
-    }
-
-    @Override
-    @Transactional
-    public void add(Role role) {
-        roleDao.add(role);
-    }
-
-    @Override
-    @Transactional
-    public void edit(Role role) {
-
-        roleDao.edit(role);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Role getById(Long id) {
-
-        return roleDao.getById(id);
-    }
 }
